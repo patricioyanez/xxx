@@ -1,0 +1,188 @@
+CREATE TABLE Sede
+(
+	idSede							INT				PRIMARY KEY AUTO_INCREMENT,
+	nombre							VARCHAR(100)	NOT NULL,
+	activo							TINYINT			NOT NULL,
+	UNIQUE(nombre)
+);
+CREATE TABLE Escuela
+(
+	idEscuela						INT				PRIMARY KEY AUTO_INCREMENT,
+	codigo							INT				NOT NULL,
+	nombre							VARCHAR(100)	NOT NULL,
+	activo							TINYINT			NOT NULL,
+	UNIQUE(nombre)
+);
+
+CREATE TABLE PlanEstudio
+(
+	idPlanEstudio					INT				PRIMARY KEY AUTO_INCREMENT,
+	idEscuela						INT				NOT NULL,
+	codigo							INT				NOT NULL,
+	nombre							VARCHAR(200)	NOT NULL,	
+	activo							TINYINT			NOT NULL,
+	UNIQUE(nombre),
+	FOREIGN KEY(idEscuela)
+			REFERENCES Escuela(idEscuela)
+);
+
+CREATE TABLE TipoUsuario
+(
+	idTipoUsuario					INT 			PRIMARY KEY AUTO_INCREMENT,
+	nombre							VARCHAR(100)	NOT NULL,
+	activo							TINYINT		 	NOT NULL,
+	UNIQUE(nombre)
+);
+
+CREATE TABLE TipoTutoria
+(
+	idTipoTutoria					INT 			PRIMARY KEY AUTO_INCREMENT,
+	nombre							VARCHAR(100)	NOT NULL,
+	activo							TINYINT		 	NOT NULL,
+	UNIQUE(nombre)
+);
+
+CREATE TABLE Usuario
+(
+	idUsuario						INT 			PRIMARY KEY AUTO_INCREMENT,
+	idTipoUsuario					INT				NOT NULL,
+	idSede							INT				NOT NULL,
+	rut								INT				NOT NULL,
+	dv								VARCHAR(1)		NOT NULL,
+	nombre							VARCHAR(50)		NOT NULL,
+	paterno							VARCHAR(50)		NOT NULL,
+	materno							VARCHAR(50)		NOT NULL,
+	email							VARCHAR(50)		NOT NULL,
+	nombreUsuario					VARCHAR(50)		NOT NULL,	
+	codigoEscuela					INT				NOT NULL,
+	codigoPlanEstudio				INT				NOT NULL,
+	carrera							VARCHAR(50)		NOT NULL,
+	jornada							VARCHAR(10)		NOT NULL,
+	telefono						VARCHAR(12)		NOT NULL,
+	clave							VARCHAR(50)		NOT NULL,
+	activo							TINYINT			NOT NULL,
+	UNIQUE(Email),
+	FOREIGN KEY(idTipoUsuario)
+			REFERENCES TipoUsuario(idTipoUsuario),
+	FOREIGN KEY(idSede)
+			REFERENCES sede(idSede)
+);
+
+CREATE TABLE Tutorado
+(
+	idTutorado						INT 			PRIMARY KEY AUTO_INCREMENT,
+	idUsuario						INT				NULL,
+	idSede							INT				NOT NULL,
+	idTipoTutoria					INT				NOT NULL,
+	rut								INT				NOT NULL,
+	dv								VARCHAR(1)		NOT NULL,
+	nombre							VARCHAR(50)		NOT NULL,
+	paterno							VARCHAR(50)		NOT NULL,
+	materno							VARCHAR(50)		NOT NULL,
+	email							VARCHAR(50)		NOT NULL,
+	genero							VARCHAR(50)		NOT NULL,
+	nacionalidad					VARCHAR(50)		NOT NULL,	
+	codigoEscuela					INT				NOT NULL,
+	codigoPlanEstudio				INT				NOT NULL,
+	carrera							VARCHAR(50)		NOT NULL,
+	jornada							VARCHAR(10)		NOT NULL,
+	telefono						VARCHAR(12)		NOT NULL,
+	antecedentesPerfil				VARCHAR(8000)	NOT NULL,
+	aceptaTutoria					TINYINT			NOT NULL,
+	motivosAbandono					VARCHAR(8000)	NOT NULL,
+	cantidadTutorias				TINYINT			NOT NULL, -- inicia del 0
+	activo							TINYINT			NOT NULL,
+	UNIQUE(rut),
+	FOREIGN KEY(idUsuario)
+			REFERENCES usuario(idUsuario),
+	FOREIGN KEY(idSede)
+			REFERENCES sede(idSede),
+	FOREIGN KEY(idTipoTutoria)
+			REFERENCES tipoTutoria(idTipoTutoria)
+);
+
+CREATE TABLE Tematica
+(
+	idTematica						INT 			PRIMARY KEY AUTO_INCREMENT,
+	numeroTutoria					TINYINT		 	NOT NULL, -- 6 maxima
+	nombre							VARCHAR(100)	NOT NULL,
+	activo							TINYINT		 	NOT NULL,
+	UNIQUE(nombre)
+);
+
+CREATE TABLE SubTipoTematica
+(
+	idSubTipoTematica				INT 			PRIMARY KEY AUTO_INCREMENT,
+	idTematica						INT				NOT NULL,
+	nombre							VARCHAR(100)	NOT NULL,	-- otro
+	activo							TINYINT		 	NOT NULL,
+	UNIQUE(nombre)
+);
+
+CREATE TABLE CriterioEvaluacion
+(
+	idCriterioEvaluacion			INT 			PRIMARY KEY AUTO_INCREMENT,
+	descripcion						VARCHAR(100)	NOT NULL,
+	valor							TINYINT		 	NOT NULL,
+	activo							TINYINT		 	NOT NULL,
+	UNIQUE(descripcion)
+);
+
+CREATE TABLE TipoAlerta
+(
+	idTipoAlerta					INT 			PRIMARY KEY AUTO_INCREMENT,
+	nombre							VARCHAR(100)	NOT NULL,  -- otro
+	activo							TINYINT		 	NOT NULL,
+	UNIQUE(nombre)
+);
+
+CREATE TABLE SubTipoAlerta
+(
+	idSubTipoAlerta					INT 			PRIMARY KEY AUTO_INCREMENT,
+	idTipoAlerta					INT				NOT NULL,
+	nombre							VARCHAR(100)	NOT NULL,	-- otro
+	activo							TINYINT		 	NOT NULL,
+	UNIQUE(nombre)
+);
+
+CREATE TABLE Ficha 
+(
+	idFicha							INT 			PRIMARY KEY AUTO_INCREMENT,  -- 6 maxima
+	idUsuario						INT				NOT NULL,
+	idTutorado						INT				NOT NULL,
+	numeroTutoria					INT				NULL, -- 0  si no asiste
+	fecha							DATE			NOT NULL,
+	asiste							TINYINT			NOT NULL,
+	justificacion					VARCHAR(8000)	NOT NULL,  -- obligatorio si no asiste
+	comentarioTematica				VARCHAR(8000)	NOT NULL,	-- opcional
+	comentarioAlerta				VARCHAR(8000)	NOT NULL,
+	FOREIGN KEY(idUsuario)
+			REFERENCES Usuario(idUsuario),
+	FOREIGN KEY(idTutorado)
+			REFERENCES Tutorado(idTutorado)
+);
+
+CREATE TABLE Ficha_Tematica
+(
+	idFicha_Tematica				INT 			PRIMARY KEY AUTO_INCREMENT,
+	idFicha							INT				NOT NULL,
+	idTematica						INT				NOT NULL,
+	idCriterioEvaluacion			INT				NOT NULL,
+	FOREIGN KEY(idFicha)
+			REFERENCES Ficha(idFicha),
+	FOREIGN KEY(idTematica)
+			REFERENCES Tematica(idTematica)	,
+	FOREIGN KEY(idCriterioEvaluacion)
+			REFERENCES CriterioEvaluacion(idCriterioEvaluacion)
+);
+
+CREATE TABLE Ficha_Alerta
+(
+	idFicha_Alerta					INT 			PRIMARY KEY AUTO_INCREMENT,
+	idFicha							INT				NOT NULL,
+	idSubTipoAlerta					INT				NOT NULL,
+	FOREIGN KEY(idFicha)
+			REFERENCES Ficha(idFicha),
+	FOREIGN KEY(idSubTipoAlerta)
+			REFERENCES SubTipoAlerta(idSubTipoAlerta)	
+);
